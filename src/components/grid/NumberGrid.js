@@ -6,12 +6,13 @@ import {
   CellMeasurerCache,
 } from "react-virtualized";
 import faker from "faker";
-import "./NumberGrid.css";
+import clsx from "clsx";
+import styles from '../../mystyle.module.css';
 
 export default function NumberGrid() {
   const cache = React.useRef(
     new CellMeasurerCache({
-      fixedWidth: true,
+      minWidth: 100,
       defaultHeight: 100,
     })
   );
@@ -19,7 +20,7 @@ export default function NumberGrid() {
 
   React.useEffect(() => {
     setAddress(
-      [...Array(10).keys()].map((key) => {
+      [...Array(1000000).keys()].map((key) => {
         return {
           id: key,
           firstName: `${faker.name.firstName()}`,
@@ -41,13 +42,19 @@ export default function NumberGrid() {
       })
     );
   }, []);
-
+// converting array of objects to array to array
   let list = address.map(function (obj) {
     return Object.keys(obj).map(function (key) {
       return obj[key];
     });
   });
+  // row color
+   function getRowClassName(row) {
+    return row % 2 === 0 ? styles.evenRow : styles.oddRow;
+  }
   function cellRenderer({ columnIndex, key, rowIndex, style, parent }) {
+    const rowClass = getRowClassName(rowIndex);
+     const classNames = clsx(rowClass, styles.cell, styles.centeredCell);
     if (list.length > 0) {
       return (
         <CellMeasurer
@@ -57,19 +64,20 @@ export default function NumberGrid() {
           columnIndex={columnIndex}
           rowCount={rowIndex}
         >
-          <div style={style}>{list[rowIndex][columnIndex]}</div>
+          <div className={classNames} style={style}>{list[rowIndex][columnIndex]}</div>
         </CellMeasurer>
       );
     }
   }
-  console.log(list);
+ 
 
   return (
-    <div style={{ width: "100%", height: "100vh" }}>
+    <div style={{ width: "90%", height: "100vh", margin: "50px 50px 0px 100px" }}>
       <AutoSizer>
         {({ width, height }) => (
           <Grid
             cellRenderer={cellRenderer}
+            className={styles.BodyGrid}
             columnCount={list.length > 0 && list[0].length}
             columnWidth={cache.current.columnWidth}
             height={height}
